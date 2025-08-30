@@ -1,0 +1,58 @@
+name: Build and Deploy to AKS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore githubactions-aks-demo.sln
+
+      - name: Build
+        run: dotnet build githubactions-aks-demo.sln --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish aks-ga-demo.csproj --configuration Release --output ./publish --no-build
+
+      - name: Login to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/aks-ga-demo:${{ github.sha }} .
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/aks-ga-demo:${{ github.sha }}
+
+      - name: Set up Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        run: az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
+
+      - name: Deploy to AKS
+        run: |
+          kubectl set image deployment/aks-ga-demo aks-ga-demo=${{ secrets.ACR_LOGIN_SERVER }}/aks-ga-demo:${{ github.sha }}
+          kubectl apply -f k8s/deployment.yml
+          kubectl apply -f k8s/service.yml
