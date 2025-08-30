@@ -51,8 +51,8 @@ jobs:
         context: .
         push: true
         tags: | 
-         rajeshjallu/github-actions-aks:${{github.sha}}
-         devpprojectrajesh.azurecr.io/github-actions-aks:${{github.sha}}
+         rajeshjallu/github-actions-aks:latest
+         devpprojectrajesh.azurecr.io/github-actions-aks:latest
 
       
      
