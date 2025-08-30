@@ -52,7 +52,7 @@ jobs:
         push: true
         tags: | 
          rajeshjallu/github-actions-aks:'${{github.sha}}'
-         devpprojectrajesh.azurecr.io/github-actions-aks:${{ github.sha }}
+         devpprojectrajesh.azurecr.io/github-actions-aks:'${{github.sha}}'
 
       
      
