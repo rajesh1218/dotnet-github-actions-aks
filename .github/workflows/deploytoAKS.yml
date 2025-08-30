@@ -51,7 +51,7 @@ jobs:
         context: .
         push: true
         tags: | 
-         rajesh1218/github-actions-aks:'${{github.sha}}'
+         rajeshjallu/github-actions-aks:'${{github.sha}}'
          devpprojectrajesh.azurecr.io/github-actions-aks:${{ github.sha }}
 
       
