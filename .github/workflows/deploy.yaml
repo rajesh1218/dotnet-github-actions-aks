@@ -1,0 +1,25 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Build deploy to AKS"]
+    types:
+      - completed
+
+jobs:
+  AKS_Deploy:
+     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+     runs-on: ubuntu-latest
+     steps:
+     - name: git checkout
+       uses: actions/checkout@v5.0.0
+     - name: Set AKS context
+       uses: azure/aks-set-context@v4
+       with:
+         cluster-name: rja-cluster
+         resource-group: app-grp
+  
+     - name: deploy AKS
+       run: |
+         kubectl apply -f k8s/deployment.yml
+         kubectl apply -f k8s/service.yml
