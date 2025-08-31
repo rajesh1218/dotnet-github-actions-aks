@@ -1,6 +1,6 @@
 # deploy to aks
 
-name: Build deploy to AKS
+name: Build
 on:
  workflow_dispatch:
 jobs:
