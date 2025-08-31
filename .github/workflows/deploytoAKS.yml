@@ -53,7 +53,44 @@ jobs:
         tags: | 
          rajeshjallu/github-actions-aks:latest
          devpprojectrajesh.azurecr.io/github-actions-aks:latest
+  AKS_Deploy:
+     needs: Docker_build
+     runs-on: ubuntu-latest
+     steps:
+     - name: git checkout
+       uses: actions/checkout@v5.0.0
+     - name: AKS set context
+       uses: Azure/k8s-set-context@v3.0
+       with:
+         creds: '${{ secrets.AKS_CRED }}'
+        # Resource Group Name
+         resource-group: app-grp
+         # AKS Cluster Name
+         cluster-name: rja-cluster
 
+     - name: Create secret in Kubernetes cluster
+       uses: Azure/k8s-create-secret@v1.1
+       with:
+         container-registry-username: '${{secrets.DOCKER_LOGIN}}'
+         # Container registry password
+         container-registry-password:  '${{secrets.DOCKER_PASSWORD}}'
+         # Type of Kubernetes secret. For example, docker-registry or generic
+         secret-type: docker-registry
+         # Name of the secret. You can use this secret name in the Kubernetes YAML configuration file.
+         secret-name: docker-image-pull-secret
+     - name: Deploy to Kubernetes cluster
+       uses: Azure/k8s-deploy@v1
+       with:        
+         # Path to the manifest files which will be used for deployment.
+         manifests: |
+           k8s/deployment.yml
+           k8s/service.yml
+         # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
+         images: '${{secrets.ACR_USERNAME}}/githubactions-aks-demo:latest'
+         # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
+         imagepullsecrets: docker-image-pull-secret
+         # deploy/promote/reject
+         action: deploy
       
      
      
