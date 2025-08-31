@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: githubactions-aks-demo
-        image: rajeshjallu/github-actions-aks
+        image: devpprojectrajesh.azurecr.io/github-actions-aks:latest
         resources:
           limits:
             memory: "128Mi"
