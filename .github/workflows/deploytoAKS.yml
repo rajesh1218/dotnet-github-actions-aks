@@ -53,16 +53,7 @@ jobs:
         tags: | 
          rajeshjallu/github-actions-aks:latest
          devpprojectrajesh.azurecr.io/github-actions-aks:latest
-  AKS_Deploy:
-     needs: Docker_build
-     runs-on: ubuntu-latest
-     steps:
-     - name: git checkout
-       uses: actions/checkout@v5.0.0
-     - name: deploy AKS
-       run: |
-         kubectl apply -f k8s/deployment.yml
-         kubectl apply -f k8s/service.yml
+
      # - name: AKS set context
      #   uses: Azure/k8s-set-context@v3.0
      #   with:
