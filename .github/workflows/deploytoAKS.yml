@@ -59,23 +59,27 @@ jobs:
      steps:
      - name: git checkout
        uses: actions/checkout@v5.0.0
-     - name: AKS set context
-       uses: Azure/k8s-set-context@v3.0
-       with:
-         kubeconfig: '${{ secrets.KUBECONFIG }}'
-        # Resource Group Name
-         resource-group: app-grp
-         # AKS Cluster Name
-         cluster-name: rja-cluster
-     - name: Set imagePullSecret
-       uses: azure/k8s-create-secret@v4
-       with: 
-          namespace: 'default'
-          secret-name: 'contoso-cr'
-          container-registry-url: 'https://index.docker.io/v1/'
-          container-registry-username: ${{ secrets.DOCKER_USERNAME }}
-          container-registry-password: ${{ secrets.DOCKER_PASSWORD }}
-       id: create-secret
+     - name: deploy AKS
+       run: |
+         kubectl apply -f k8s/deployment.yml
+         kubectl apply -f k8s/service.yml
+     # - name: AKS set context
+     #   uses: Azure/k8s-set-context@v3.0
+     #   with:
+     #     kubeconfig: '${{ secrets.KUBECONFIG }}'
+     #    # Resource Group Name
+     #     resource-group: app-grp
+     #     # AKS Cluster Name
+     #     cluster-name: rja-cluster
+     # - name: Set imagePullSecret
+     #   uses: azure/k8s-create-secret@v4
+     #   with: 
+     #      namespace: 'default'
+     #      secret-name: 'contoso-cr'
+     #      container-registry-url: 'https://index.docker.io/v1/'
+     #      container-registry-username: ${{ secrets.DOCKER_USERNAME }}
+     #      container-registry-password: ${{ secrets.DOCKER_PASSWORD }}
+     #   id: create-secret
      # - name: Create secret in Kubernetes cluster
      #   run: |
      #    kubectl create secret docker-registry docker-image-pull-secret \
@@ -84,18 +88,18 @@ jobs:
      #      --docker-server=https://index.docker.io/v1/ \
      #      --docker-email=jallu225@gmail.com
           
-     - name: Deploy to Kubernetes cluster
-       uses: Azure/k8s-deploy@v1
-       with:        
-         # Path to the manifest files which will be used for deployment.
-         manifests: |
-           k8s/deployment.yml
-           k8s/service.yml
-         # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
-         images: '${{ secrets.DOCKER_USERNAME }}/github-actions-aks:latest'
-         # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
-         imagepullsecrets: docker-image-pull-secret
-         # deploy/promote/reject
-         action: deploy
+     # - name: Deploy to Kubernetes cluster
+     #   uses: Azure/k8s-deploy@v1
+     #   with:        
+     #     # Path to the manifest files which will be used for deployment.
+     #     manifests: |
+     #       k8s/deployment.yml
+     #       k8s/service.yml
+     #     # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
+     #     images: '${{ secrets.DOCKER_USERNAME }}/github-actions-aks:latest'
+     #     # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
+     #     imagepullsecrets: docker-image-pull-secret
+     #     # deploy/promote/reject
+     #     action: deploy
      
      
